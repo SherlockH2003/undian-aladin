@@ -220,13 +220,13 @@ function startAnimation() {{
 
 if (["Hadiah Ketiga", "Hadiah Keempat", "Hadiah Cabang"].includes(jenisHadiah)) {{
     pemenangText = `
-        <div class="ucapan" style="font-size:30px">🎉 CONGRATULATIONS 🎉</div><br><br>
+        <div class="ucapan" style="font-size:30px">🎉 CONGRATULATIONS 🎉</div>
         <div style="font-size:26px">Selamat kepada nama-nama di bawah ini</div>
         <div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b></div>
     `;
 }} else {{
     pemenangText = `
-        <div class="ucapan" style="font-size:30px">🎉 CONGRATULATIONS 🎉</div><br><br>
+        <div class="ucapan" style="font-size:30px">🎉 CONGRATULATIONS 🎉</div>
         <div class="list-pemenang">${{pemenang[jenisHadiah].map(nama => `<div>${{nama}}</div>`).join("")}}</div>
         <div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b></div>
     `;
@@ -303,5 +303,6 @@ if st.session_state.show_winner_list:
                         cols[idx % 3].write(f"• {row['Nama']} ({row['Branch']})")
     else:
         st.write("Tidak ada pemenang untuk kategori ini.")
+
 
 st.markdown("<hr>", unsafe_allow_html=True)
