@@ -16,17 +16,16 @@ def get_base64_image(image_path):
 
 # --- Konfigurasi Halaman Streamlit ---
 st.set_page_config(layout="wide", page_title="Pengumuman Pemenang")
-st.markdown("<h1 style='text-align: center; color: white;'>Aplikasi Pengumuman Pemenang</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white;'>Undian Pemenang</h1>", unsafe_allow_html=True)
 st.markdown(
     """
-    <p style='text-align: center;'>Pilih jenis hadiah di bawah ini dan klik "Mulai Animasi" untuk melihat amplop naik. 
-    Kemudian, klik surat yang muncul untuk menariknya keluar.</p>
+    <p style='text-align: center;'>Pilih jenis hadiah di bawah ini dan klik "Mulai Mengundi" untuk melihat pemenangnya.</p>
     """, unsafe_allow_html=True
 )
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # --- Tampilkan Semua Pemenang ---
-st.markdown("<h2 style='text-align: center; color: white;'>Semua Pemenang</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: white;'>Hadiah Nabung Rutin Alfamidi</h2>", unsafe_allow_html=True)
 
 # --- Gambar untuk animasi ---
 amplop_bg_b64 = get_base64_image("amplop_bg.png") or "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
@@ -43,7 +42,7 @@ with kolom2:
     )
 
     # Menggunakan kondisi if untuk tombol "Mulai Animasi"
-    start_button = st.button("Mulai Animasi", use_container_width=True, key="start_button")
+    start_button = st.button("Mulai Mengundi", use_container_width=True, key="start_button")
 
 # --- Session State ---
 if 'animation_trigger' not in st.session_state:
@@ -306,3 +305,4 @@ if st.session_state.show_winner_list:
 
 
 st.markdown("<hr>", unsafe_allow_html=True)
+
