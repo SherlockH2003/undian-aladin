@@ -98,9 +98,10 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # --- Helper untuk teks pemenang ---
 def build_winner_html_list(df):
     names = [f"<strong>{row['Nama']}</strong> <br>({row['Branch']}) <br>({row['Area Kerja']})" for _, row in df.iterrows()]
-    return "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;'>" + \
-           "".join([f"<div style='font-size:20px'><br>{n}</div>" for n in names]) + "</div>"
-
+    return "<div style='display:grid;grid-template-columns:repeat(3, 200px);gap:10px;text-align:center; justify-content:center;'>" + \
+       "".join([f"<div style='font-size:20px; min-height:60px; display:flex; flex-direction:column; justify-content:center;'>{n}</div>" for n in names]) + "</div>"
+       
+       
 # --- SLOT & KOMBINASI LOGIC ---
 def generate_slot_data(df_winner, semua_peserta, gimmick_only=False):
     if gimmick_only:
@@ -215,7 +216,7 @@ if st.session_state.anim_mode == 'kombinasi':
 
                 #amplop {{ position:absolute; left:50%; transform:translateX(-660px); bottom:-900px; z-index:3; width:1300px; transition:bottom 1.4s ease-in-out; }}
                 #surat {{ position:absolute; left:50%; transform:translateX(-50%); bottom:100px; width:clamp(735px,78.75vw,1575px); z-index:2; opacity:0; transition: transform 1.2s ease-in-out, opacity 0.4s ease-in; }}
-                #nama-pemenang {{ color:black; font-size:22px; position:absolute; left:390px; bottom:227px; z-index:6; opacity:0; text-align:center; max-width:600px; }}
+                #nama-pemenang {{ color:black; font-size:22px; position:absolute; left:385px; bottom:227px; z-index:6; opacity:0; text-align:center; max-width:600px; }}
             </style>
         </head>
         <body>
@@ -276,7 +277,7 @@ if st.session_state.anim_mode == 'kombinasi':
                     suratEl.style.transition = "bottom {LETTER_UP/1000:.3f}s ease, opacity {LETTER_UP/1000:.3f}s ease";
                     suratEl.style.bottom = "20px"; suratEl.style.opacity = 1; suratEl.style.zIndex=4;
                 }}, {T_ENVELOPE + ENVELOPE_UP + LETTER_LEFT + GAP_AFTER_LEFT});
-
+ 
                 setTimeout(() => {{
                     if (["Hadiah Ketiga","Hadiah Keempat","Hadiah Cabang"].includes(jenisHadiah)) {{
                         namaEl.innerHTML = `
@@ -286,7 +287,26 @@ if st.session_state.anim_mode == 'kombinasi':
                             <div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b><br><br><br><br><br></div>
                         </div>`;
                     }} else {{
-                        namaEl.innerHTML = `<div style="font-size:26px;margin-bottom:8px"><strong>🎉 CONGRATULATIONS 🎉</strong></div>` + pemenangHTML + `<div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b></div>`;
+                        namaEl.innerHTML = `
+                            <div style="
+                                width: 100%; 
+                                height: 100%; 
+                                display: flex; 
+                                flex-direction: column; 
+                                justify-content: center; 
+                                align-items: center; 
+                                text-align: center;
+                            ">
+                                <div style="font-size:26px; margin-bottom:8px;"><strong>🎉 CONGRATULATIONS 🎉</strong></div>
+                                <div style="font-size:22px; margin-bottom:10px;">Selamat kepada nama-nama di bawah ini</div>
+                                <div style="display: grid; grid-template-columns: repeat(3, auto); gap: 10px; justify-items: center; align-items: center;">
+                                    ${{pemenangHTML}}   <!-- pastikan di build_winner_html_list semua divnya inline grid -->
+                                </div>
+                                <div class="jenis-kemenangan" style="font-size:20px; margin-top:10px;">
+                                    Sebagai pemenang <b>${{jenisHadiah}}</b>
+                                </div>
+                            </div>
+                            `;
                     }}
                     namaEl.style.transition = "bottom {TEXT_UP/1000:.3f}s ease, opacity {TEXT_UP/1000:.3f}s ease";
                     namaEl.style.opacity = 1;
