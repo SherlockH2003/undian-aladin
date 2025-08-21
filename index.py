@@ -358,7 +358,6 @@ if st.session_state.show_winner_list:
     )
     winners_df = pemenang[jenis_hadiah]
     winners_df_display = winners_df.copy()
-    winners_df_display['Probability'] = winners_df_display['Probability'].apply(lambda x: f"{float(x)*100:.5f}%")
 
     if winners_df_display is not None and not winners_df_display.empty:
         # --- Kategori Cabang ---
