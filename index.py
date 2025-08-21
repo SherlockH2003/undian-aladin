@@ -28,7 +28,7 @@ st.markdown(
 # --- Config ---
 st.set_page_config(layout="wide", page_title="Pengumuman Pemenang")
 st.markdown("<h1 style='text-align: center; color: white;'>Undian Pemenang</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Pilih jenis hadiah di bawah ini dan klik tombol untuk memulai animasi.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Pilih jenis hadiah di bawah ini dan klik tombol untuk memulai undian.</p>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 st.markdown(
@@ -409,3 +409,4 @@ if st.session_state.show_winner_list:
                     )
     else:
         st.info("Tidak ada pemenang untuk kategori ini.")
+
