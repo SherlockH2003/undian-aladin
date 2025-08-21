@@ -216,7 +216,7 @@ if st.session_state.anim_mode == 'kombinasi':
 
                 #amplop {{ position:absolute; left:50%; transform:translateX(-660px); bottom:-900px; z-index:3; width:1300px; transition:bottom 1.4s ease-in-out; }}
                 #surat {{ position:absolute; left:50%; transform:translateX(-50%); bottom:100px; width:clamp(735px,78.75vw,1575px); z-index:2; opacity:0; transition: transform 1.2s ease-in-out, opacity 0.4s ease-in; }}
-                #nama-pemenang {{ color:black; font-size:22px; position:absolute; left:385px; bottom:227px; z-index:6; opacity:0; text-align:center; max-width:600px; }}
+                #nama-pemenang {{ color:black; font-size:22px; position:absolute; left:375px; bottom:240px; z-index:6; opacity:0; text-align:center; max-width:600px; }}
             </style>
         </head>
         <body>
@@ -284,7 +284,7 @@ if st.session_state.anim_mode == 'kombinasi':
                         <div style="margin-left: 100px;margin-top: 200px; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center;">
                             <div style="font-size:26px;margin-bottom:8px"><strong>🎉 CONGRATULATIONS 🎉</strong></div>
                             <div style="font-size:22px"><br>Selamat kepada nama-nama di bawah ini</div>
-                            <div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b><br><br><br><br><br></div>
+                            <div class="jenis-kemenangan" style="font-size:20px"><br><br>Sebagai pemenang <b>${{jenisHadiah}}</b></div>
                         </div>`;
                     }} else {{
                         namaEl.innerHTML = `
