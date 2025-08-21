@@ -305,7 +305,6 @@ if st.session_state.anim_mode == 'kombinasi':
 
 winners_df = pemenang[jenis_hadiah]
 winners_df_display = winners_df.copy()
-winners_df_display['Probability'] = winners_df_display['Probability'].apply(lambda x: f"{float(x)*100:.5f}%")
 
 # --- Daftar Pemenang ---
 if st.session_state.show_winner_list:
