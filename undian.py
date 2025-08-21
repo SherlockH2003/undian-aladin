@@ -56,9 +56,14 @@ Data karyawan diekstraksi dari Google Spreadsheet menuju google colab secara sed
 """
 
 # Extract & Transform Data
-spreadsheet = "https://docs.google.com/spreadsheets/d/1NKT3lM1zkw2g-CkCaR5F_HTm1vvlYmw4EFjQmkBr6Fw/export?format=csv&gid=1788211216"
-df = pd.read_csv(spreadsheet)
-df_backup = df.copy()
+try:
+    spreadsheet = "https://docs.google.com/spreadsheets/d/1NKT3lM1zkw2g-CkCaR5F_HTm1vvlYmw4EFjQmkBr6Fw/export?format=csv&gid=1788211216"
+    df = pd.read_csv(spreadsheet)
+    df_backup = df.copy()
+except:
+    path = "list_undian.csv"
+    df = pd.read_csv(path)
+    df_backup = df.copy()
 
 # Loading Data
 
@@ -86,13 +91,14 @@ jabatan_token = {
     'OPR' : 4,
     'COS' : 2,
     'PD' : 4,
-    'LND' : 3
+    'LND' : 3,
+    'GM' : 8
 }
 
 df['Jabatan Numerik'] = df.Jabatan.map(jabatan_token)
 df[['Jabatan Numerik','Jabatan']]
 
-df[df['Jabatan Numerik'] >= 7]
+df[df['Jabatan Numerik'] > 7]
 
 """Dengan demikian, Jabatan bisa diurut secara numerik berdasarkan bobot hierarkisnya."""
 
@@ -145,145 +151,96 @@ pemenang = {
     'Hadiah Keempat' :pd.DataFrame(),
     'Hadiah Cabang' : pd.DataFrame()
 }
+# -----------------
+# Fungsi bantu: ambil pemenang undian dengan probabilitas, sambil mengecualikan pemenang sebelumnya
+# -----------------
+def draw_winners(df, kuota, exclude_index=None, probability_col='Point'):
+    if exclude_index is not None:
+        df = df[~df.index.isin(exclude_index)]
+    df = df.copy()
+    df['Probability'] = df[probability_col] / df[probability_col].sum()
+    if len(df) <= kuota:
+        return df
+    else:
+        selected_idx = np.random.choice(df.index, kuota, replace=False, p=df['Probability'])
+        return df.loc[selected_idx]
 
 # -----------------
 # HADIAH UTAMA
 # -----------------
+H1W = {
+    "Warehouse" : pd.DataFrame(),
+    "Office" : pd.DataFrame(),
+    "Toko" : pd.DataFrame()
+}
+
 C1 = df[df['Point'] == df.Point.max()]
-C1['Probability'] = C1['Point']/C1['Point'].sum()
-H1W = np.random.choice(C1.index, kuota_pemenang['Hadiah Kedua'], replace=False,p=C1['Probability'])
-H1W = C1.loc[H1W]
-pemenang['Hadiah Utama'] = H1W
-pemenang['Hadiah Utama']
+if not C1[C1['Area Kerja'] == "Warehouse"].empty:
+    H1W['Warehouse'] = C1[C1['Area Kerja'] == "Warehouse"].sample(1)
+if not C1[C1['Area Kerja'] == "Office"].empty:
+    H1W['Office'] = C1[C1['Area Kerja'] == "Office"].sample(1)
+if not C1[C1['Area Kerja'] == "Toko"].empty:
+    H1W['Toko'] = C1[C1['Area Kerja'] == "Toko"].sample(1)
 
-"""---
-
-### Hadiah Kedua
-
-Untuk mencari peserta hadiah kedua pertama-tama, hapus dulu pemenang hadiah pertama supaya mereka tidak bisa masuk ke peserta undian hadiah kedua.
-
-
-kemudian, cari data peserta yang point-nya lebih besar dari KKM (Kriteria Ketuntasan Minimum) untuk diundi.
-"""
-
-KKM = 46
-probabilitas = df['Point'] / df.Point.sum()
-probabilitas
+H1W_all = pd.concat(H1W.values())
+pemenang['Hadiah Utama'] = H1W_all
 
 # -----------------
 # HADIAH KEDUA
 # -----------------
-
-df = df[~df.index.isin(H1W.index)] # EXCLUDE DATA PEMENANG HADIAH UTAMA
-C2 = df[df['Point'] >= KKM].copy()
-C2['Probability'] = C2['Point']/C2['Point'].sum()
-H2W = np.random.choice(C2.index, kuota_pemenang['Hadiah Kedua'], p=C2['Probability'], replace=False)
-H2W = C2.loc[H2W]
+H2W = draw_winners(df.copy(), kuota_pemenang['Hadiah Kedua'], exclude_index=H1W_all.index)
 pemenang['Hadiah Kedua'] = H2W
-pemenang['Hadiah Kedua']
-# print(len(df))
-
-"""---
-
-### Hadiah Ketiga
-
-Data peserta pertama-tama dibagi berdasarkan branch supaya pemerataannya lebih adil, kemudian dari masing-masing brach akan diambil beberapa orang secara acak. Lalu orang yang diambil secara acak dari masing-masing branch ini akan digabungkan untuk diundi.
-"""
 
 # -----------------
 # HADIAH KETIGA
 # -----------------
+df_UnderKKM = df.copy()
+C3_candidates = df_UnderKKM[~df_UnderKKM.index.isin(H1W_all.index.union(H2W.index))]
 
-df = df[(~df.index.isin(H2W.index))]
-df_UnderKKM = df[df['Point'] < KKM]
-
-# GROUPING
-df_branch    = {} # nama_cabang : data_peserta
-sample_branch = {} # nama_cabang : X data, dengan X = jumlah sampel
-
-for cabang, isi in df_UnderKKM.groupby('Branch'): # df.groupby itu udah otomatis sortir dan filter
-    df_branch[cabang] = isi
-
-# SAMPLING
+df_branch = {}
+sample_branch = {}
 JUMLAH_SAMPLE = 3
-
-for cabang, isi in df_branch.items():
+for cabang, isi in C3_candidates.groupby('Branch'):
+    df_branch[cabang] = isi
     if len(isi) <= JUMLAH_SAMPLE:
         sample_branch[cabang] = isi
     else:
         sample_branch[cabang] = isi.sample(JUMLAH_SAMPLE)
 
-# MERGE
 C3 = pd.concat(sample_branch.values())
-C3['Probability']=C3['Point']/C3['Point'].sum()
-H3W = np.random.choice(C3.index, kuota_pemenang['Hadiah Ketiga'], replace=False, p=C3['Probability'])
-H3W = C3.loc[H3W]
+H3W = draw_winners(C3, kuota_pemenang['Hadiah Ketiga'])
 pemenang['Hadiah Ketiga'] = H3W
-pemenang['Hadiah Ketiga']
-# print(len(df))
-
-"""---
-
-### Hadiah Keempat
-
-...
-
-"""
 
 # -----------------
 # HADIAH KEEMPAT
 # -----------------
-df  = df[(~df.index.isin(H3W.index))]
-C4 = df
-C4['Probability'] = C4['Point']/C4['Point'].sum()
-H4W = np.random.choice(C4.index, kuota_pemenang['Hadiah Keempat'], replace=False, p=C4['Probability'])
-H4W = df.loc[H4W]
+C4_candidates = df[~df.index.isin(H1W_all.index.union(H2W.index).union(H3W.index))]
+H4W = draw_winners(C4_candidates, kuota_pemenang['Hadiah Keempat'])
 pemenang['Hadiah Keempat'] = H4W
-pemenang['Hadiah Keempat']
-# print(len(df))
-
-# df  = df[(~df.index.isin(H4W.index))]
-# print(len(df))
-
-"""---
-
-### Hadiah Cabang
-
-Hadiah cabang dipilih dengan mengacak peserta dari cabangnya masing-masing dan mengundi beberapa orang sebagai pemenang berdasarkan kuota cabang masing-masing
-
-"""
 
 # -----------------
 # HADIAH CABANG
 # -----------------
-
-df = df[(~df.index.isin(H4W.index))]
-
-data_cabang = {}
-kuota_cabang = {
-    'Samarinda': 3,
-    'Ambon': 3,
-    'HO': 3,
-    'Boyolali': 3,
-    'Bekasi': 6,
-    'Palu': 4,
-    'Medan': 4,
-    'Bitung': 6,
-    'Kendari': 3,
-    'Makassar': 4,
-    'Pasuruan': 4
-}
+df_cabang = df[~df.index.isin(H1W_all.index.union(H2W.index).union(H3W.index).union(H4W.index))]
+data_cabang = {} 
+kuota_cabang = {'Branch Samarinda': 3, 
+                'Branch Ambon': 3, 
+                'Branch Manado': 3, 
+                'Head Office': 3, 
+                'Branch Boyolali': 3, 
+                'Branch Bekasi': 6, 
+                'Branch Palu': 4, 
+                'Branch Medan': 4, 
+                'Branch Bitung': 6, 
+                'Branch Kendari': 3, 
+                'Branch Makasar': 4, 
+                'Branch Pasuruan': 4 } 
 HCW = {}
 
-for cabang, isi in df.groupby('Branch'):
-    data_cabang[cabang] = isi
-
-for cabang, isi in data_cabang.items():
-    if len(isi) <= kuota_cabang[cabang]:
+for cabang, isi in df_cabang.groupby('Branch'):
+    kuota = kuota_cabang.get(cabang, 0)
+    if len(isi) <= kuota:
         HCW[cabang] = isi
     else:
-        HCW[cabang] = np.random.choice(isi.index, kuota_cabang[cabang], replace=False, p=isi['Point']/isi['Point'].sum())
-        HCW[cabang] = isi.loc[HCW[cabang]]
-
+        HCW[cabang] = draw_winners(isi, kuota)
 pemenang['Hadiah Cabang'] = pd.concat(HCW.values())
-pemenang['Hadiah Cabang']
