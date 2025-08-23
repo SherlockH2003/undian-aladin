@@ -57,7 +57,7 @@ Data karyawan diekstraksi dari Google Spreadsheet menuju google colab secara sed
 
 # Extract & Transform Data
 try:
-    spreadsheet = ""
+    spreadsheet = SPREADSHEET_RAHASIA
     df = pd.read_csv(spreadsheet)
     df_backup = df.copy()
 except:
@@ -244,4 +244,5 @@ for cabang, isi in df_cabang.groupby('Branch'):
     else:
         HCW[cabang] = draw_winners(isi, kuota)
 pemenang['Hadiah Cabang'] = pd.concat(HCW.values())
+
 
